@@ -78,7 +78,9 @@ body{margin:0;background:var(--void);color:var(--paper);font-family:var(--body);
 .pad button{font-size:22px;color:var(--paper);background:var(--panel);border:1px solid var(--line);touch-action:none}
 .pad button:active,.pad button.on{background:#3a2a1c;border-color:var(--gold)}
 .pad .u{grid-column:2;grid-row:1}.pad .l{grid-column:1;grid-row:2}.pad .r{grid-column:3;grid-row:2}.pad .d{grid-column:2;grid-row:3}
-@media (hover:none),(pointer:coarse){.pad{display:grid}}
+.act.diag{display:none;background:#4a2a18;border-color:var(--gold);padding:6px 10px;font-size:18px;line-height:1.1}
+.act.diag small{display:block;font-family:var(--body);font-size:10px;color:var(--paper-dim)}
+@media (hover:none),(pointer:coarse){.pad{display:grid}.act.diag{display:inline-block}}
 
 /* messages */
 .banner{position:fixed;z-index:12;left:50%;top:24%;transform:translateX(-50%);max-width:calc(100% - 32px);width:max-content;text-align:center;
@@ -200,7 +202,9 @@ kbd{font-family:var(--body);font-size:12px;padding:1px 6px;border:1px solid var(
 <div class="side">
   <div class="mapwrap"><span class="lbl" id="mapLbl">回廊の地図</span><canvas id="minimap"></canvas><button class="map-btn" id="mapBtn" type="button" hidden>地図の向きを切替</button></div>
   <div class="acts">
+    <button class="act diag" id="jumpL" type="button" aria-label="斜め左へ跳ぶ">↖<small>左へ跳ぶ</small></button>
     <button class="act jump" id="jumpBtn" type="button">跳ぶ</button>
+    <button class="act diag" id="jumpR" type="button" aria-label="斜め右へ跳ぶ">↗<small>右へ跳ぶ</small></button>
     <button class="act" id="cardBtn" type="button">目利きの札 ×1</button>
   </div>
   <div class="acts">
@@ -228,7 +232,7 @@ kbd{font-family:var(--body);font-size:12px;padding:1px 6px;border:1px solid var(
       <span class="seal">全五層　回廊の間から城主の間まで</span>
       <p class="lead">上も下も果てのない楼閣の迷路です。各層の門をくぐると上の層へ登れ、第五層の門で踏破となります。層ごとに和風・中華風・インド風・アラビア風・中世ヨーロッパ風と、違う国の楼閣が現れます。遊び方は3つだけ。</p>
       <ol class="howto">
-        <li><b>歩く</b><span>始めると、あなたの目線（一人称視点）になります。<br><kbd>↑</kbd>で前へ進む、<kbd>←</kbd><kbd>→</kbd>で左右を向く、<kbd>↓</kbd>で振り返る、<kbd>スペース</kbd>で前へジャンプ（1マス飛び越えて2マス先へ）。角にある穴は、スペースを押したまま<kbd>←</kbd><kbd>→</kbd>で斜めに跳び越えられます。<br>スマホは画面左下のボタン。行きたい床をタップしても、そこまで自動で歩きます。<br>迷ったら<kbd>V</kbd>キー（画面上の「視点」ボタン）で上からの眺めに切り替えられます。</span></li>
+        <li><b>歩く</b><span>始めると、あなたの目線（一人称視点）になります。<br><kbd>↑</kbd>で前へ進む、<kbd>←</kbd><kbd>→</kbd>で左右を向く、<kbd>↓</kbd>で振り返る、<kbd>スペース</kbd>で前へジャンプ（1マス飛び越えて2マス先へ）。角にある穴は、スペースを押したまま<kbd>←</kbd><kbd>→</kbd>で斜めに跳び越えられます。<br>スマホは画面左下のボタン（角の穴は右下の「↖」「↗」で斜めに跳べます）。行きたい床をタップしても、そこまで自動で歩きます。<br>迷ったら<kbd>V</kbd>キー（画面上の「視点」ボタン）で上からの眺めに切り替えられます。</span></li>
         <li><b>鍵を探す</b><span>迷路のどこかに、金色に光る小さな鍵があります。上に乗れば拾えます。画面下の矢印が鍵の方角を、地図の金色の丸が鍵の場所を示します。迷ったら<kbd>G</kbd>の「道しるべ」で鍵までの道が床に光り、<kbd>Tab</kbd>の「全体図」で迷路全体を見られます。</span></li>
         <li><b>門へ入る</b><span>鍵を持つと画面下の矢印が「門の方角」に変わります。光の柱が立つ朱色の門にたどり着けば次の層へ。上の層ほど罠が増え、壁の動きも速くなります。</span></li>
       </ol>
@@ -961,7 +965,7 @@ function tryJump(side){
   if(!isFloor(mx,my)||!isFloor(lx,ly)){
     if(now-jumpMsgAt>1.5){jumpMsgAt=now;sfx.locked();
       const corner=!side&&isFloor(mx,my)&&(isFloor(mx-dy,my+dx)||isFloor(mx+dy,my-dx));
-      if(corner&&!cornerTaught){cornerTaught=true;banner(coarse?'角の先へは、「跳ぶ」を押したまま ◀ か ▶ を押すと斜めに跳べる':'角の先へは、スペースを押したまま ← か → で斜めに跳べる','',3600);}
+      if(corner&&!cornerTaught){cornerTaught=true;banner(coarse?'角の先へは、「↖左へ跳ぶ」「↗右へ跳ぶ」ボタンで斜めに跳べる':'角の先へは、スペースを押したまま ← か → で斜めに跳べる','',3600);}
       else floater(side?'その向きには跳べない':'ここでは跳べない','f-info');}
     return;}
   if(lx===EXIT.x&&ly===EXIT.y&&!hasKey){if(now-lockedMsgAt>2.5){lockedMsgAt=now;sfx.locked();banner('封印の札が門を閉ざしている。鍵を探そう','bad',2400);}return;}
@@ -1170,6 +1174,7 @@ $('guideBtn').addEventListener('click',()=>{showGuide();$('guideBtn').blur();});
 $('fmClose').addEventListener('click',closeFullMap);
 $('fmGuide').addEventListener('click',()=>{closeFullMap();guideCd=0;showGuide();});
 $('jumpBtn').addEventListener('pointerdown',e=>{e.preventDefault();ensureAudio();if(state==='play'){spaceHeld=true;sideUsed=false;try{$('jumpBtn').setPointerCapture(e.pointerId);}catch(_){}}});
+['jumpL','jumpR'].forEach(id=>{$(id).addEventListener('pointerdown',e=>{e.preventDefault();ensureAudio();if(state!=='play')return;const[fx,fz]=facing;jumpSide=id==='jumpL'?[fz,-fx]:[-fz,fx];wantJump=true;});});
 const jumpRelease=()=>{if(spaceHeld){spaceHeld=false;if(!sideUsed&&state==='play'){jumpSide=null;wantJump=true;}}};
 $('jumpBtn').addEventListener('pointerup',jumpRelease);$('jumpBtn').addEventListener('pointercancel',()=>{spaceHeld=false;});
 $('jumpBtn').addEventListener('keydown',e=>{if(e.code==='Enter'){e.preventDefault();wantJump=true;}});
@@ -1260,7 +1265,7 @@ function hud(){
   if(showC){const cl=hasKey?'門の方角':'鍵の方角';if($('compassLbl').textContent!==cl)$('compassLbl').textContent=cl;const dx=gt.x-playerG.position.x,dz=gt.y-playerG.position.z;let rel=Math.atan2(dx,dz)-curYaw;rel=Math.atan2(Math.sin(rel),Math.cos(rel));$('compassArrow').style.transform='rotate('+(-rel)+'rad)';}
   const jb=$('jumpBtn');const jl=jumpCd>0?'跳ぶ '+jumpCd.toFixed(1):'跳ぶ';
   if(jb.dataset.l!==jl){jb.dataset.l=jl;jb.innerHTML=jl+'<i style="width:'+(jumpCd>0?(1-jumpCd/JUMP_CD)*100:100)+'%"></i>';}
-  jb.disabled=state!=='play';
+  jb.disabled=state!=='play';$('jumpL').disabled=jb.disabled;$('jumpR').disabled=jb.disabled;
   const gb=$('guideBtn');const gl=guideCd>0?'道しるべ '+Math.ceil(guideCd):'道しるべ';if(gb.textContent!==gl)gb.textContent=gl;gb.disabled=state!=='play';$('fullBtn').disabled=state!=='play';
   const cb=$('cardBtn');cb.textContent='目利きの札 ×'+cards;cb.disabled=state!=='play'||cards<=0;
 }
