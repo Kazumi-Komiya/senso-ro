@@ -80,7 +80,7 @@ body{margin:0;background:var(--void);color:var(--paper);font-family:var(--body);
 .pad .u{grid-column:2;grid-row:1}.pad .l{grid-column:1;grid-row:2}.pad .r{grid-column:3;grid-row:2}.pad .d{grid-column:2;grid-row:3}
 .act.diag{display:none;background:#4a2a18;border-color:var(--gold);padding:6px 10px;font-size:18px;line-height:1.1}
 .act.diag small{display:block;font-family:var(--body);font-size:10px;color:var(--paper-dim)}
-@media (hover:none),(pointer:coarse){.pad{display:grid}.act.diag{display:inline-block}}
+@media (hover:none),(pointer:coarse){.pad{display:grid}}
 
 /* messages */
 .banner{position:fixed;z-index:12;left:50%;top:24%;transform:translateX(-50%);max-width:calc(100% - 32px);width:max-content;text-align:center;
@@ -146,7 +146,7 @@ kbd{font-family:var(--body);font-size:12px;padding:1px 6px;border:1px solid var(
 .compass span{font-size:11px;letter-spacing:.1em;color:var(--paper-dim)}
 .pad button{font-family:var(--body)}
 .pad button small{display:block;font-size:10px;line-height:1.1;color:var(--paper-dim)}
-@media (max-width:560px){.compass{bottom:calc(env(safe-area-inset-bottom,0px) + 196px)}}
+
 @keyframes hintBob{to{transform:translate(-50%,-5px)}}
 @media (max-width:560px){.chip.combo{display:none}.objective{font-size:13px}.hint{bottom:calc(env(safe-area-inset-bottom,0px) + 196px)}}
 .rules{display:grid;grid-template-columns:1fr 1fr;gap:18px}
@@ -179,6 +179,33 @@ kbd{font-family:var(--body);font-size:12px;padding:1px 6px;border:1px solid var(
   .pad{grid-template-columns:repeat(3,52px);grid-template-rows:repeat(3,52px)}
 }
 @media (prefers-reduced-motion:reduce){.floater{animation-duration:.8s}.vignette.warn{animation:none;box-shadow:inset 0 0 120px rgba(165,139,214,.45)}.banner{animation:none}}
+/* touch layout: d-pad bottom-left, 3x2 action grid bottom-right, map top-right */
+@media (hover:none),(pointer:coarse){
+  .hud{gap:4px;padding-bottom:8px}
+  .chip{min-width:0;padding:3px 7px 4px}
+  .lbl{font-size:9.5px}
+  .val{font-size:15px}.chip.score .val{font-size:17px}
+  .flames{height:17px;gap:3px}.flame{width:8px;height:12px}
+  .icon-btn{font-size:11px;padding:6px 8px}
+  .objective{font-size:12.5px;padding:5px 10px}
+  .pad{display:grid;left:max(10px,env(safe-area-inset-left,0px));bottom:calc(env(safe-area-inset-bottom,0px) + 10px);grid-template-columns:repeat(3,54px);grid-template-rows:repeat(3,54px);gap:5px}
+  .pad button{background:rgba(12,10,18,.78);border:1.5px solid rgba(220,174,78,.75);border-radius:12px;font-size:24px;line-height:1;color:#fff;padding:0}
+  .pad button small{font-size:9.5px;margin-top:2px;color:var(--paper-dim)}
+  .pad button.on,.pad button:active{background:rgba(120,80,30,.85);border-color:#ffd27a}
+  .side{right:max(10px,env(safe-area-inset-right,0px));bottom:calc(env(safe-area-inset-bottom,0px) + 10px);display:grid;grid-template-columns:repeat(3,56px);grid-auto-rows:54px;gap:5px;align-items:stretch}
+  .side .acts{display:contents}
+  .side .act{width:56px;height:54px;padding:2px;font-size:12px;line-height:1.2;letter-spacing:0;border-radius:12px;border-width:1.5px;display:flex;flex-direction:column;align-items:center;justify-content:center;white-space:normal;word-break:keep-all}
+  .side .act.jump{min-width:0;font-size:16px;font-weight:800;background:#7a3a18;border-color:#ffd27a}
+  .side .act.diag{display:flex;font-size:20px}
+  .side .act.diag small{font-size:9px}
+  .mobile-map{position:fixed;z-index:10;right:max(10px,env(safe-area-inset-right,0px));top:var(--below,120px);padding:4px}
+  .mobile-map .lbl,.mobile-map .map-btn{display:none!important}
+  .mobile-map #minimap{width:96px;height:96px}
+  .compass{left:max(10px,env(safe-area-inset-left,0px));top:var(--below,120px);bottom:auto;transform:none;padding:5px 10px}
+  .compass i{font-size:30px}
+  .hint{bottom:calc(env(safe-area-inset-bottom,0px) + 190px);font-size:13px;padding:7px 12px}
+  .banner{top:calc(var(--below,120px) + 110px)}
+}
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 
@@ -1173,7 +1200,7 @@ $('fullBtn').addEventListener('click',()=>{openFullMap();$('fullBtn').blur();});
 $('guideBtn').addEventListener('click',()=>{showGuide();$('guideBtn').blur();});
 $('fmClose').addEventListener('click',closeFullMap);
 $('fmGuide').addEventListener('click',()=>{closeFullMap();guideCd=0;showGuide();});
-$('jumpBtn').addEventListener('pointerdown',e=>{e.preventDefault();ensureAudio();if(state==='play'){spaceHeld=true;sideUsed=false;try{$('jumpBtn').setPointerCapture(e.pointerId);}catch(_){}}});
+$('jumpBtn').addEventListener('pointerdown',e=>{e.preventDefault();ensureAudio();if(state==='play'){jumpSide=null;wantJump=true;}});
 ['jumpL','jumpR'].forEach(id=>{$(id).addEventListener('pointerdown',e=>{e.preventDefault();ensureAudio();if(state!=='play')return;const[fx,fz]=facing;jumpSide=id==='jumpL'?[fz,-fx]:[-fz,fx];wantJump=true;});});
 const jumpRelease=()=>{if(spaceHeld){spaceHeld=false;if(!sideUsed&&state==='play'){jumpSide=null;wantJump=true;}}};
 $('jumpBtn').addEventListener('pointerup',jumpRelease);$('jumpBtn').addEventListener('pointercancel',()=>{spaceHeld=false;});
@@ -1190,7 +1217,10 @@ function retryFloor(){
   const c=cfg();banner(c.num+'　'+c.name+'からやり直し。灯火が3つに戻った','',3000);
 }
 $('retryFloorBtn').addEventListener('click',retryFloor);
-function placeObjective(){$('objective').style.top=($('hud').offsetHeight+6)+'px';}
+function placeObjective(){const hh=$('hud').offsetHeight;const ob=$('objective');ob.style.top=(hh+4)+'px';
+  const below=hh+(ob.hidden?6:ob.offsetHeight+12);document.documentElement.style.setProperty('--below',below+'px');}
+setInterval(placeObjective,700);
+if(coarse){const mw=document.querySelector('.mapwrap');document.body.appendChild(mw);mw.classList.add('mobile-map');setTimeout(sizeMinimap,50);}
 addEventListener('resize',placeObjective);
 function toggleMute(){muted=!muted;$('muteBtn').textContent=muted?'音：切':'音：入';}
 $('muteBtn').addEventListener('click',()=>{ensureAudio();toggleMute();$('muteBtn').blur();});
@@ -1258,16 +1288,16 @@ function hud(){
   $('hShiftChip').classList.toggle('alert',!!plan);
   const playing=state==='play';
   $('objective').hidden=!playing;
-  if(playing){const o=hasKey?(view==='fp'?'鍵を手に入れた。画面下の矢印の方角、光の柱の門へ':'鍵を手に入れた。足元の矢印の先、光の柱の門へ'):'鍵を探そう。画面下の矢印が鍵の方角。迷ったら「道しるべ」（G）か「全体図」（Tab）';if($('objText').textContent!==o)$('objText').textContent=o;}
+  if(playing){const o=coarse?(hasKey?'鍵を入手。左上の矢印の方角、光の柱の門へ':'鍵を探そう。左上の矢印が鍵の方角。迷ったら「道しるべ」'):hasKey?(view==='fp'?'鍵を手に入れた。画面下の矢印の方角、光の柱の門へ':'鍵を手に入れた。足元の矢印の先、光の柱の門へ'):'鍵を探そう。画面下の矢印が鍵の方角。迷ったら「道しるべ」（G）か「全体図」（Tab）';if($('objText').textContent!==o)$('objText').textContent=o;}
   const hintEl=$('hint');const showHint=playing&&steps<5;hintEl.hidden=!showHint;
-  if(showHint){const h=view==='fp'?(coarse?'左下のボタンで前へ進む・向きを変える。迷ったら上の「視点」で俯瞰に':'↑で前へ、←→で向きを変える、↓で振り返る（Vで俯瞰に切替）'):(coarse?'左下の方向ボタンを押すか、行きたい床をタップして歩こう':'矢印キーで歩こう（行きたい床をクリックしてもOK）');if(hintEl.textContent!==h)hintEl.textContent=h;}
+  if(showHint){const h=view==='fp'?(coarse?'左下の▲で前へ、◀▶で向きを変える。右下の「跳ぶ」で穴を越える':'↑で前へ、←→で向きを変える、↓で振り返る（Vで俯瞰に切替）'):(coarse?'左下の方向ボタンを押すか、行きたい床をタップして歩こう':'矢印キーで歩こう（行きたい床をクリックしてもOK）');if(hintEl.textContent!==h)hintEl.textContent=h;}
   const gt=playing?goalTile():null;const cmp=$('compass');const showC=playing&&!!gt&&view==='fp';cmp.hidden=!showC;
   if(showC){const cl=hasKey?'門の方角':'鍵の方角';if($('compassLbl').textContent!==cl)$('compassLbl').textContent=cl;const dx=gt.x-playerG.position.x,dz=gt.y-playerG.position.z;let rel=Math.atan2(dx,dz)-curYaw;rel=Math.atan2(Math.sin(rel),Math.cos(rel));$('compassArrow').style.transform='rotate('+(-rel)+'rad)';}
   const jb=$('jumpBtn');const jl=jumpCd>0?'跳ぶ '+jumpCd.toFixed(1):'跳ぶ';
   if(jb.dataset.l!==jl){jb.dataset.l=jl;jb.innerHTML=jl+'<i style="width:'+(jumpCd>0?(1-jumpCd/JUMP_CD)*100:100)+'%"></i>';}
   jb.disabled=state!=='play';$('jumpL').disabled=jb.disabled;$('jumpR').disabled=jb.disabled;
-  const gb=$('guideBtn');const gl=guideCd>0?'道しるべ '+Math.ceil(guideCd):'道しるべ';if(gb.textContent!==gl)gb.textContent=gl;gb.disabled=state!=='play';$('fullBtn').disabled=state!=='play';
-  const cb=$('cardBtn');cb.textContent='目利きの札 ×'+cards;cb.disabled=state!=='play'||cards<=0;
+  const gb=$('guideBtn');const gl=guideCd>0?(coarse?'道 '+Math.ceil(guideCd):'道しるべ '+Math.ceil(guideCd)):'道しるべ';if(gb.textContent!==gl)gb.textContent=gl;gb.disabled=state!=='play';$('fullBtn').disabled=state!=='play';
+  const cb=$('cardBtn');cb.textContent=(coarse?'札 ×':'目利きの札 ×')+cards;cb.disabled=state!=='play'||cards<=0;
 }
 let last=performance.now();
 function frame(ts){
